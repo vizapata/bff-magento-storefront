@@ -51,4 +51,12 @@ public class ProductServiceImpl implements ProductService {
         var products = productMapper.toProducts(productsEntry);
         return new Page<>(products, products.size(), limit, offset);
     }
+
+    @Override
+    public Product getProductBySku(String sku) {
+        var url = apiBaseUrl + apiPath + PRODUCTS_ENDPOINT_PATH + "/" + sku;
+        log.info("Loading product by SKU={}", sku);
+        var response = (Map<String, Object>) restTemplate.getForObject(url, Map.class);
+        return productMapper.toProduct(response);
+    }
 }

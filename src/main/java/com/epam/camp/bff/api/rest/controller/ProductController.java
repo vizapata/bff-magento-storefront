@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,5 +26,10 @@ public class ProductController {
                                                                 @RequestParam(defaultValue = "0", required = false) Integer offset,
                                                                 @RequestParam(defaultValue = "20", required = false) Integer limit) {
         return ResponseEntity.ok(productService.listProductsByCategory(categoryId, offset, limit));
+    }
+
+    @GetMapping("{sku}")
+    public ResponseEntity<Product> getProductBySku(@PathVariable String sku) {
+        return ResponseEntity.ok(productService.getProductBySku(sku));
     }
 }
