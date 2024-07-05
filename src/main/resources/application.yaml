@@ -4,4 +4,9 @@ server:
 
 app.magento:
   storeFront.url: "http://localhost:3000"
-  api.baseUrl: "https://magento.test/rest/default/"
+  api:
+    user: "john.smith"
+    password: "password123"
+    baseUrl: "https://magento.test/"
+    path: "rest/default/"
+    imagePath: "pub/media/catalog/product"
