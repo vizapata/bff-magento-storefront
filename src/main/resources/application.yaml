@@ -1,0 +1,7 @@
+server:
+  port: 3003
+  servlet.context-path: /api
+
+app.magento:
+  storeFront.url: "http://localhost:3000"
+  api.baseUrl: "https://magento.test/rest/default/"
