@@ -20,10 +20,9 @@ public record Variant(
     }
 
     public Variant withPrice(Double price) {
-        List<Map<String, Object>> prices = List.of(Map.of("value", Map.of(
-                "currencyCode", "USD",
-                "centAmount", price * 100
-        )));
+        List<Map<String, Object>> prices = List.of(
+                Map.of("value", new Price("USD", price * 100))
+        );
         return new Variant(id, sku, slug, name, prices, attributes, images);
     }
 
