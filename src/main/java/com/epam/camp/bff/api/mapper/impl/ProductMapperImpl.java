@@ -1,5 +1,6 @@
-package com.epam.camp.bff.api.mapper;
+package com.epam.camp.bff.api.mapper.impl;
 
+import com.epam.camp.bff.api.mapper.ProductMapper;
 import com.epam.camp.bff.api.rest.dto.Product;
 import com.epam.camp.bff.api.rest.dto.Variant;
 import com.epam.camp.bff.api.service.PropertiesService;
