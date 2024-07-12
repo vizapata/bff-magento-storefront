@@ -1,5 +1,6 @@
-package com.epam.camp.bff.api.mapper;
+package com.epam.camp.bff.api.mapper.impl;
 
+import com.epam.camp.bff.api.mapper.CategoryMapper;
 import com.epam.camp.bff.api.rest.dto.Ancestor;
 import com.epam.camp.bff.api.rest.dto.Category;
 import com.epam.camp.bff.api.rest.dto.Parent;
