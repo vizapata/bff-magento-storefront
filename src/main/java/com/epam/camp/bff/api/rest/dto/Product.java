@@ -10,16 +10,9 @@ public record Product(Integer id,
                       List<Variant> variants,
                       Variant masterVariant,
                       String type) {
-    public Double getPrice(){
+    public Double getPrice() {
         return Optional.ofNullable(masterVariant)
-                .map(Variant::prices)
-                .orElse(List.of())
-                .stream()
-                .filter(price -> price.containsKey("value"))
-                .map(price -> price.get("value"))
-                .filter(Price.class::isInstance)
-                .map(price -> ((Price) price).centAmount())
-                .findFirst()
+                .map(Variant::getPrice)
                 .orElse(0d);
     }
 }

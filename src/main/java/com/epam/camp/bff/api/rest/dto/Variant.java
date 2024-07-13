@@ -5,6 +5,7 @@ import lombok.With;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @With
 public record Variant(
@@ -43,5 +44,17 @@ public record Variant(
         }
         newAttributes.add(newAttribute);
         return new Variant(id, sku, slug, this.name, prices, newAttributes, images);
+    }
+
+    public Double getPrice(){
+        return Optional.ofNullable(prices)
+                .orElse(List.of())
+                .stream()
+                .filter(price -> price.containsKey("value"))
+                .map(price -> price.get("value"))
+                .filter(Price.class::isInstance)
+                .map(price -> ((Price) price).centAmount())
+                .findFirst()
+                .orElse(0d);
     }
 }
