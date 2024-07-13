@@ -46,7 +46,8 @@ public class ProductMapperImpl implements ProductMapper {
                 description,
                 slug,
                 List.of(),
-                variant);
+                variant,
+                data.get("type_id").toString());
     }
 
     private static String getAttribute(List<Map<String, String>> customAttributes, String attributeName) {

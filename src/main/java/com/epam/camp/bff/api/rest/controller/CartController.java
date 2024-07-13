@@ -1,6 +1,7 @@
 package com.epam.camp.bff.api.rest.controller;
 
 import com.epam.camp.bff.api.rest.dto.Cart;
+import com.epam.camp.bff.api.rest.dto.CartItem;
 import com.epam.camp.bff.api.rest.dto.request.AddLineItemRequest;
 import com.epam.camp.bff.api.service.CartService;
 import lombok.RequiredArgsConstructor;
@@ -32,8 +33,7 @@ public class CartController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Cart> addLineItem(@PathVariable String id, @RequestBody AddLineItemRequest lineItemRequest) {
-        cartService.addLineItem(id, lineItemRequest);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<CartItem> addLineItem(@PathVariable String id, @RequestBody AddLineItemRequest lineItemRequest) {
+        return ResponseEntity.ok(cartService.addLineItem(id, lineItemRequest));
     }
 }

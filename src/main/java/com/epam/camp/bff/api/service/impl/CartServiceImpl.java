@@ -2,6 +2,7 @@ package com.epam.camp.bff.api.service.impl;
 
 import com.epam.camp.bff.api.mapper.CartMapper;
 import com.epam.camp.bff.api.rest.dto.Cart;
+import com.epam.camp.bff.api.rest.dto.CartItem;
 import com.epam.camp.bff.api.rest.dto.request.AddLineItemRequest;
 import com.epam.camp.bff.api.service.ApiService;
 import com.epam.camp.bff.api.service.CartService;
@@ -40,19 +41,13 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void addLineItem(String id, AddLineItemRequest lineItemRequest) {
+    public CartItem addLineItem(String id, AddLineItemRequest lineItemRequest) {
         var product = productService.getProductBySku(lineItemRequest.lineItem().variantId());
-        var request = Map.of("cartItem", Map.of(
-                "item_id", product.id(),
-                "qty", lineItemRequest.lineItem().quantity(),
-                "quote_id", lineItemRequest.version(),
-                "cartId", id,
-                "quoteId", lineItemRequest.version()
-        ));
+        var cartItem = cartMapper.toCartItem(product, lineItemRequest.lineItem().quantity());
+        var request = Map.of("cartItem", cartItem);
 
-        var response = apiService.postForObject(CART_ENDPOINT_PATH + "/" + id + "/items",
+        return apiService.postForObject(CART_ENDPOINT_PATH + "/" + id + "/items",
                 request,
-                String.class);
-        log.info("Updated cart {}", response);
+                CartItem.class);
     }
 }

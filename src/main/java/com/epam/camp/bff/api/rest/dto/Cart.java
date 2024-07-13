@@ -7,6 +7,7 @@ import java.util.List;
 public record Cart(
         @With
         String id,
+        String quoteId,
         Integer version,
         String customerId,
         List<CartLineItem> lineItems,
