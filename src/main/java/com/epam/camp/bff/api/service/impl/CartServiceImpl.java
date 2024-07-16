@@ -3,6 +3,7 @@ package com.epam.camp.bff.api.service.impl;
 import com.epam.camp.bff.api.mapper.CartMapper;
 import com.epam.camp.bff.api.rest.dto.Cart;
 import com.epam.camp.bff.api.rest.dto.CartItem;
+import com.epam.camp.bff.api.rest.dto.OrderResponse;
 import com.epam.camp.bff.api.rest.dto.request.UpdateCartRequest;
 import com.epam.camp.bff.api.service.ApiService;
 import com.epam.camp.bff.api.service.CartService;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -22,8 +24,10 @@ interface CartActionService {
 @Service
 @RequiredArgsConstructor
 @Log4j2
+@SuppressWarnings("unchecked")
 public class CartServiceImpl implements CartService {
     private static final String CART_ENDPOINT_PATH = "V1/guest-carts";
+    private static final String COUNTRY_ENDPOINT_PATH = "V1/directory/countries/";
     private final ApiService apiService;
     private final CartMapper cartMapper;
     private final ProductService productService;
@@ -50,6 +54,16 @@ public class CartServiceImpl implements CartService {
         return getCartActionService(updateCartRequest).update(id, updateCartRequest);
     }
 
+    @Override
+    public OrderResponse placeOrder(String id) {
+        var response = apiService.getForObject(CART_ENDPOINT_PATH + "/" + id + "/payment-methods", List.class);
+        var paymentMethod = getItemFromListResponse(response);
+        var request = Map.of("paymentMethod", Map.of(
+                "method", paymentMethod.get("code")));
+        var orderId = apiService.putForObject(CART_ENDPOINT_PATH + "/" + id + "/order", request, String.class);
+        return new OrderResponse(orderId);
+    }
+
     private CartActionService getCartActionService(UpdateCartRequest updateCartRequest) {
         return switch (updateCartRequest.action()) {
             case AddLineItem -> new AddLineItemService();
@@ -57,6 +71,15 @@ public class CartServiceImpl implements CartService {
             case RemoveLineItem -> new RemoveLineItemService();
             case SetShippingAddress -> new SetShippingAddressService();
         };
+    }
+
+    private Map<String, Object> getItemFromListResponse(List<Map<String, Object>> response) {
+        return Optional.ofNullable(response)
+                .stream()
+                .filter(list -> !list.isEmpty())
+                .map(List::getFirst)
+                .findAny()
+                .orElseThrow();
     }
 
     private class AddLineItemService implements CartActionService {
@@ -104,30 +127,39 @@ public class CartServiceImpl implements CartService {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private class SetShippingAddressService implements CartActionService {
+
         @Override
         public Map<String, Object> update(String id, UpdateCartRequest updateCartRequest) {
             var address = updateCartRequest.setShippingAddress();
-            var shippingMethod = getShippingMethod(id);
+            var region = getRegionDetails(address.country(), address.region());
 
-            var billingAddress = Map.of(
-                    "city", address.city(),
-                    "country_id", address.country(),
-                    "email", address.email(),
-                    "firstname", address.firstName(),
-                    "lastname", address.lastName(),
-                    "postcode", address.postalCode(),
-                    "region", address.region(),
-                    "street", List.of(address.streetNumber(), address.streetName()));
+            var billingAddress = new HashMap<String, Object>();
+            billingAddress.put("city", address.city());
+            billingAddress.put("country_id", address.country());
+            billingAddress.put("email", address.email());
+            billingAddress.put("firstname", address.firstName());
+            billingAddress.put("lastname", address.lastName());
+            billingAddress.put("postcode", address.postalCode());
+            billingAddress.put("region", region.get("name"));
+            billingAddress.put("region_code", region.get("code"));
+            billingAddress.put("region_id", region.get("id"));
+            billingAddress.put("telephone", "555-5555555");
+            billingAddress.put("street", List.of(address.streetNumber(), address.streetName()));
+            billingAddress.put("same_as_billing", 1);
+
+            var response = apiService.postForObject(CART_ENDPOINT_PATH + "/" + id + "/estimate-shipping-methods",
+                    Map.of("address", billingAddress),
+                    List.class);
+            var shippingMethod = getItemFromListResponse(response);
 
             var addressInformation = Map.of(
+                    "shipping_carrier_code", shippingMethod.get("carrier_code"),
+                    "shipping_method_code", shippingMethod.get("method_code"),
                     "billing_address", billingAddress,
                     "custom_attributes", Map.of(),
                     "extension_attributes", Map.of(),
-                    "shipping_address", billingAddress,
-                    "shipping_carrier_code", shippingMethod.get("carrier_code"),
-                    "shipping_method_code", shippingMethod.get("method_code"));
+                    "shipping_address", billingAddress);
 
             var request = Map.of("addressInformation", addressInformation);
 
@@ -136,15 +168,17 @@ public class CartServiceImpl implements CartService {
                     Map.class);
         }
 
-        private Map<String, Object> getShippingMethod(String id) {
-            List<Map<String, Object>> response = apiService.getForObject(CART_ENDPOINT_PATH + "/" + id + "/shipping-methods", List.class);
-            return Optional.ofNullable(response)
+        private Map<String, String> getRegionDetails(String country, String region) {
+            return Optional.ofNullable(apiService.getForMap(COUNTRY_ENDPOINT_PATH + country))
+                    .map(response -> response.get("available_regions"))
+                    .filter(List.class::isInstance)
+                    .map(item -> (List<Map<String, String>>) item)
+                    .orElse(List.of())
                     .stream()
-                    .filter(list -> !list.isEmpty())
-                    .map(List::getFirst)
-                    .findAny()
+                    .filter(item -> region.equals(item.get("name")))
+                    .findFirst()
                     .orElseThrow();
-
         }
     }
+
 }

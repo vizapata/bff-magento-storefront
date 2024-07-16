@@ -1,7 +1,7 @@
 package com.epam.camp.bff.api.rest.controller;
 
 import com.epam.camp.bff.api.rest.dto.Cart;
-import com.epam.camp.bff.api.rest.dto.CartItem;
+import com.epam.camp.bff.api.rest.dto.OrderResponse;
 import com.epam.camp.bff.api.rest.dto.request.UpdateCartRequest;
 import com.epam.camp.bff.api.service.CartService;
 import lombok.RequiredArgsConstructor;
@@ -35,5 +35,10 @@ public class CartController {
     @PutMapping("{id}")
     public ResponseEntity<Object> addLineItem(@PathVariable String id, @RequestBody UpdateCartRequest lineItemRequest) {
         return ResponseEntity.ok(cartService.updateCartItem(id, lineItemRequest));
+    }
+
+    @PostMapping("{id}/order")
+    public ResponseEntity<OrderResponse> placeOrder(@PathVariable String id) {
+        return ResponseEntity.ok(cartService.placeOrder(id));
     }
 }
