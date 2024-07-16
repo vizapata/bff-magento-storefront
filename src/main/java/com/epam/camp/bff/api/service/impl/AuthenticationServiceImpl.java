@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +40,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public synchronized String getToken() {
         if (accessToken == null) {
-            accessToken = login();
+            accessToken = Optional.ofNullable(login())
+                    .map(token -> token.replace("\"", ""))
+                    .orElse(null);
         }
         return accessToken;
     }

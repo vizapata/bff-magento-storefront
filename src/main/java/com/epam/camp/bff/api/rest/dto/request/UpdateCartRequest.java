@@ -10,6 +10,7 @@ public record UpdateCartRequest(
         @JsonAlias("ChangeLineItemQuantity")
         ChangeLineItemQuantity changeLineItemQuantity,
         @JsonAlias("RemoveLineItem")
-        RemoveLineItem removeLineItem
-) {
+        RemoveLineItem removeLineItem,
+        @JsonAlias("SetShippingAddress")
+        SetShippingAddress setShippingAddress) {
 }
