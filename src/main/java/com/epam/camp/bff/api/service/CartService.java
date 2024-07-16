@@ -1,7 +1,6 @@
 package com.epam.camp.bff.api.service;
 
 import com.epam.camp.bff.api.rest.dto.Cart;
-import com.epam.camp.bff.api.rest.dto.CartItem;
 import com.epam.camp.bff.api.rest.dto.request.UpdateCartRequest;
 
 public interface CartService {
@@ -9,5 +8,5 @@ public interface CartService {
 
     Cart createGuestCart();
 
-    CartItem updateCartItem(String id, UpdateCartRequest lineItemRequest);
+    Object updateCartItem(String id, UpdateCartRequest lineItemRequest);
 }

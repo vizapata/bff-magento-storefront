@@ -8,6 +8,8 @@ public record UpdateCartRequest(
         @JsonAlias("AddLineItem")
         AddLineItem addLineItem,
         @JsonAlias("ChangeLineItemQuantity")
-        ChangeLineItemQuantity changeLineItemQuantity
+        ChangeLineItemQuantity changeLineItemQuantity,
+        @JsonAlias("RemoveLineItem")
+        RemoveLineItem removeLineItem
 ) {
 }

@@ -15,4 +15,6 @@ public interface ApiService {
     }
 
     <T> T putForObject(String path, Object body, Class<T> responseType);
+
+    <T> T deleteForObject(String path, Class<T> responseType);
 }

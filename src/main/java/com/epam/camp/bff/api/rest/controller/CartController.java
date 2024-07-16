@@ -33,7 +33,7 @@ public class CartController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<CartItem> addLineItem(@PathVariable String id, @RequestBody UpdateCartRequest lineItemRequest) {
+    public ResponseEntity<Object> addLineItem(@PathVariable String id, @RequestBody UpdateCartRequest lineItemRequest) {
         return ResponseEntity.ok(cartService.updateCartItem(id, lineItemRequest));
     }
 }

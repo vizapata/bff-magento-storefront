@@ -41,4 +41,10 @@ public class MagentoApiService implements ApiService {
         var request = new RequestEntity<>(body, HttpMethod.PUT, URI.create(apiBaseUrl + apiPath + path));
         return restTemplate.exchange(request, responseType).getBody();
     }
+
+    @Override
+    public <T> T deleteForObject(String path, Class<T> responseType) {
+        var request = new RequestEntity<>(HttpMethod.DELETE, URI.create(apiBaseUrl + apiPath + path));
+        return restTemplate.exchange(request, responseType).getBody();
+    }
 }

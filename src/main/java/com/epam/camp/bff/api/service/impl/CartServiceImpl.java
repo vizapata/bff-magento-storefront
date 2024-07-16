@@ -41,10 +41,11 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public CartItem updateCartItem(String id, UpdateCartRequest updateCartRequest) {
+    public Object updateCartItem(String id, UpdateCartRequest updateCartRequest) {
         return switch (updateCartRequest.action()) {
             case AddLineItem -> new AddLineItemService().addLineItem(id, updateCartRequest);
             case ChangeLineItemQuantity -> new UpdateLineItemQuantityService().updateLineItemQuantity(id, updateCartRequest);
+            case RemoveLineItem -> new RemoveLineItemService().removeLineItem(id, updateCartRequest);
         };
     }
 
@@ -78,6 +79,15 @@ public class CartServiceImpl implements CartService {
             return apiService.putForObject(CART_ENDPOINT_PATH + "/" + id + "/items/" + itemId,
                     request,
                     CartItem.class);
+        }
+    }
+
+    private class RemoveLineItemService {
+
+        public Boolean removeLineItem(String id, UpdateCartRequest updateCartRequest) {
+            var itemId = updateCartRequest.removeLineItem().lineItemId();
+            return apiService.deleteForObject(CART_ENDPOINT_PATH + "/" + id + "/items/" + itemId,
+                    Boolean.class);
         }
     }
 }
