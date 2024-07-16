@@ -3,7 +3,7 @@ package com.epam.camp.bff.api.service.impl;
 import com.epam.camp.bff.api.mapper.CartMapper;
 import com.epam.camp.bff.api.rest.dto.Cart;
 import com.epam.camp.bff.api.rest.dto.CartItem;
-import com.epam.camp.bff.api.rest.dto.request.AddLineItemRequest;
+import com.epam.camp.bff.api.rest.dto.request.UpdateCartRequest;
 import com.epam.camp.bff.api.service.ApiService;
 import com.epam.camp.bff.api.service.CartService;
 import com.epam.camp.bff.api.service.ProductService;
@@ -41,13 +41,43 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public CartItem addLineItem(String id, AddLineItemRequest lineItemRequest) {
-        var product = productService.getProductBySku(lineItemRequest.lineItem().variantId());
-        var cartItem = cartMapper.toCartItem(product, lineItemRequest.lineItem().quantity());
-        var request = Map.of("cartItem", cartItem);
+    public CartItem updateCartItem(String id, UpdateCartRequest updateCartRequest) {
+        return switch (updateCartRequest.action()) {
+            case AddLineItem -> new AddLineItemService().addLineItem(id, updateCartRequest);
+            case ChangeLineItemQuantity -> new UpdateLineItemQuantityService().updateLineItemQuantity(id, updateCartRequest);
+        };
+    }
 
-        return apiService.postForObject(CART_ENDPOINT_PATH + "/" + id + "/items",
-                request,
-                CartItem.class);
+
+    private class AddLineItemService {
+        public CartItem addLineItem(String id, UpdateCartRequest updateCartRequest) {
+            var product = productService.getProductBySku(updateCartRequest.addLineItem().variantId());
+            var cartItem = cartMapper.toCartItem(product, updateCartRequest.addLineItem().quantity());
+            var request = Map.of("cartItem", cartItem);
+
+            return apiService.postForObject(CART_ENDPOINT_PATH + "/" + id + "/items",
+                    request,
+                    CartItem.class);
+        }
+    }
+
+    private class UpdateLineItemQuantityService {
+        public CartItem updateLineItemQuantity(String id, UpdateCartRequest updateCartRequest) {
+            var itemId = updateCartRequest.changeLineItemQuantity().lineItemId();
+            var cart = findById(id);
+
+            var productSku = cart.lineItems()
+                    .stream()
+                    .filter(lineItem -> lineItem.id().equals(updateCartRequest.changeLineItemQuantity().lineItemId()))
+                    .map(cartLineItem -> cartLineItem.variant().sku())
+                    .findFirst()
+                    .orElseThrow();
+            var product = productService.getProductBySku(productSku);
+            var cartItem = cartMapper.toCartItem(product, updateCartRequest.changeLineItemQuantity().quantity());
+            var request = Map.of("cartItem", cartItem);
+            return apiService.putForObject(CART_ENDPOINT_PATH + "/" + id + "/items/" + itemId,
+                    request,
+                    CartItem.class);
+        }
     }
 }

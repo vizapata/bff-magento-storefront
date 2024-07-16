@@ -3,9 +3,12 @@ package com.epam.camp.bff.api.service.impl;
 import com.epam.camp.bff.api.service.ApiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.RequestEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
 import java.util.Map;
 
 @Service
@@ -31,5 +34,11 @@ public class MagentoApiService implements ApiService {
     @Override
     public <T> T postForObject(String path, Object body, Class<T> responseType) {
         return restTemplate.postForObject(apiBaseUrl + apiPath + path, body, responseType);
+    }
+
+    @Override
+    public <T> T putForObject(String path, Object body, Class<T> responseType) {
+        var request = new RequestEntity<>(body, HttpMethod.PUT, URI.create(apiBaseUrl + apiPath + path));
+        return restTemplate.exchange(request, responseType).getBody();
     }
 }

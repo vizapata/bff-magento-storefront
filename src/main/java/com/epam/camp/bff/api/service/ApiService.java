@@ -13,4 +13,6 @@ public interface ApiService {
     default <T> T postForObject(String path, Class<T> responseType) {
         return postForObject(path, null, responseType);
     }
+
+    <T> T putForObject(String path, Object body, Class<T> responseType);
 }
