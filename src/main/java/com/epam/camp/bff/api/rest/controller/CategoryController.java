@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("v1/categories")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "${app.magento.storeFront.url}", maxAge = 1800L, methods = RequestMethod.GET)
+@CrossOrigin(origins = "${app.storeFront.url}", maxAge = 1800L, methods = RequestMethod.GET)
 public class CategoryController {
     private final CategoryService categoryService;
 

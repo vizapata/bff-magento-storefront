@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("v1/products")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "${app.magento.storeFront.url}", maxAge = 1800L, methods = RequestMethod.GET)
+@CrossOrigin(origins = "${app.storeFront.url}", maxAge = 1800L, methods = RequestMethod.GET)
 public class ProductController {
 
     private final ProductService productService;
